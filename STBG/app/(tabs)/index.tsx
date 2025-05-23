@@ -54,7 +54,7 @@ export default function HomeScreen() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Latest Posts</ThemedText>
+        <ThemedText type="title">Posts</ThemedText>
       </ThemedView>
       <ThemedView style={styles.listContainer}>
         <FlatList
@@ -96,11 +96,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: Platform.OS === 'android' ? 4 : 0,
+    borderWidth: 0.5,
+    borderStyle: "solid",
   },
   postId: {
     fontSize: 12,

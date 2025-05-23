@@ -13,7 +13,6 @@ export default function RootLayout() {
   });
 
   if (!loaded) {
-    // Async font loading only occurs in development.
     return null;
   }
 
@@ -21,6 +20,13 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+            name="post/[id]"
+            options={{
+              title: 'Post',
+              headerBackTitle: 'Back', 
+            }}
+          />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />
