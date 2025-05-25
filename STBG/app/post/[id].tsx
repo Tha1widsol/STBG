@@ -1,24 +1,33 @@
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 import { useLocalSearchParams } from 'expo-router';
-import { View, Text, StyleSheet, useColorScheme, ScrollView } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 export default function PostDetailScreen() {
-  const { id, title, body } = useLocalSearchParams();
-  const colorScheme = useColorScheme();
-
-  const isDark = colorScheme === 'dark';
-  const backgroundColor = isDark ? '#121212' : '#f8f9fa';
-  const textColor = isDark ? '#e0e0e0' : '#1a1a1a';
-  const cardColor = isDark ? '#1e1e1e' : '#ffffff';
+  // Extract post data from the route parameters
+  const { id, title, body } = useLocalSearchParams()
 
   return (
-    <ScrollView style={[styles.screen, { backgroundColor }]}>
-      <View style={[styles.card, { backgroundColor: cardColor }]}>
-        <Text style={[styles.heading, { color: textColor }]}>Post #{id}</Text>
-        <Text style={[styles.title, { color: textColor }]}>{title}</Text>
-        <Text style={[styles.body, { color: textColor }]}>{body}</Text>
-      </View>
-    </ScrollView>
-  );
+    <ThemedView 
+      style={styles.card} 
+      accessible={true}
+      // Provide descriptive label for screen readers summarizing post details
+      accessibilityLabel={`Details for post number ${id}, titled ${title}. Body: ${body}`}
+      accessibilityRole='summary'
+    >
+      <ThemedText style={styles.heading} accessibilityRole='header'>
+        Post #{id}
+      </ThemedText>
+
+      <ThemedText style={styles.title}>
+        {title}
+      </ThemedText>
+
+      <ThemedText style={styles.body}>
+        {body}
+      </ThemedText>
+    </ThemedView>
+  )
 }
 
 const styles = StyleSheet.create({
@@ -28,11 +37,12 @@ const styles = StyleSheet.create({
   card: {
     margin: 16,
     padding: 20,
+    backgroundColor: '#fff',
     borderRadius: 12,
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 }, 
+    shadowOpacity: 0.1, 
     shadowRadius: 4,
   },
   heading: {

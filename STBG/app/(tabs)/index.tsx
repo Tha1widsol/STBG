@@ -1,118 +1,84 @@
-import { Image } from 'expo-image';
-import { FlatList, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'expo-router';
-
-type Post = {
-  userId: number;
-  id: number;
-  title: string;
-  body: string;
-};
+import React, { useEffect, useState } from 'react'
+import { ActivityIndicator, SafeAreaView, StyleSheet, Text, View } from 'react-native'
+import PostsList from '@/components/posts/PostsList'
+import { Post } from '@/components/posts/types'
+import { ThemedView } from '@/components/ThemedView'
 
 export default function HomeScreen() {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<Post[]>([])  
+  const [loading, setLoading] = useState(false)  
+  const [error, setError] = useState('')       
 
+  // Function to fetch posts from API
   const fetchPosts = async () => {
-    const API_URL = 'https://jsonplaceholder.typicode.com/posts';
+    setLoading(true)
+    setError('')
     try {
-      const response = await fetch(API_URL);
-      if (!response.ok) console.log('Error with response');
-      const data = await response.json();
-      setPosts(data);
-    } catch (error) {
-      console.log('Error: ', error);
+      const API_URL = 'https://jsonplaceholder.typicode.com/posts'
+      const response = await fetch(API_URL)
+      if (!response.ok) {
+        throw new Error(`Error! Status: ${response.status}`)
+      }
+      const data = await response.json()
+      setPosts(data) 
+
+    } catch {
+      setError('Something went wrong')  
+
+    } finally {
+      setLoading(false) 
     }
-  };
-
-  useEffect(() => {
-    fetchPosts();
-  }, []);
-
-  const PostCard = ({ post }: { post: Post }) => {
-    const router = useRouter()
-    
-    return  (
-    <TouchableOpacity onPress={() => router.push({pathname: `/post/[id]`, params: {id: post.id, title: post.title, body: post.body}})} style={styles.postCard}>
-      <Text style={styles.postTitle}>{post.title}</Text>
-    </TouchableOpacity>
-    );
   }
- 
 
+  // Fetch posts when component mounts
+  useEffect(() => {
+    fetchPosts()
+  }, [])
+
+  // Show loading indicator while fetching
+  if (loading) {
+    return (
+      <View
+        style={styles.centered}
+        accessible={true}
+        accessibilityRole='alert'
+        accessibilityLabel='Loading posts. Please wait.'
+      >
+        <ActivityIndicator size='large' />
+        <Text>Loading...</Text>
+      </View>
+    )
+  }
+
+  // Show error message if fetch failed
+  if (error) {
+    return (
+      <View
+        style={styles.centered}
+        accessible={true}
+        accessibilityRole='alert'
+        accessibilityLabel='Error loading posts. Something went wrong.'
+      >
+        <Text style={{ color: 'red', fontSize: 16 }}>{error}</Text>
+      </View>
+    )
+  }
+
+  // Render the list of posts once loaded
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Posts</ThemedText>
+    <SafeAreaView style={styles.container}>
+      <ThemedView style={{ flex: 1 }}>
+        <PostsList posts={posts} />
       </ThemedView>
-      <ThemedView style={styles.listContainer}>
-        <FlatList
-          data={posts}
-          renderItem={({ item }) => <PostCard post={item} />}
-          keyExtractor={item => String(item.id)}
-          contentContainerStyle={styles.flatListContent}
-          showsVerticalScrollIndicator={false}
-          ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
-        />
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+    </SafeAreaView>
+  )
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  container: { flex: 1 },
+  centered: { 
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 8,
   },
-  listContainer: {
-    paddingBottom: 16,
-  },
-  flatListContent: {
-    paddingHorizontal: 12,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-  },
-  postCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 0.5,
-    borderStyle: "solid",
-  },
-  postId: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 4,
-  },
-  postTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 6,
-  },
-  postBody: {
-    fontSize: 14,
-    color: '#444',
-    lineHeight: 20,
-  },
-});
+})
